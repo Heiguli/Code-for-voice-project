@@ -11,7 +11,7 @@
 
 #define LED_PIN LED_BUILTIN //Defining led
 
-
+// -------------------- AUDIO --------------------
 #define SAMPLE_RATE   16000 //Sample rate
 #define BLOCK_SIZE    512   //Size of the blocks of audio data that are tested for rms
 #define RECORD_SECONDS 2    //how long one actual recording is
@@ -27,7 +27,7 @@ int count_value = 0; //Just a index to cound how many blocks have had rms over t
 
 
 
-
+// -------------------- WIFI / MQTT --------------------
 const char* ssid     = "Honor8.12"; //ssid of the mobile hotspot used to connect to internet
 const char* password = "pineapple1234"; //password of the wifi hotspot
 
@@ -40,10 +40,10 @@ const char* mqtt_topic  = "voice/commands"; ////hivemq topic
 WiFiClientSecure net; //Creates a secure network object from WiFiClientSecure
 MqttClient mqtt(net); //uses the secure network object to send messages to mqtt
 
-
+// -------------------- I2S --------------------
 I2S i2s(INPUT); //Making the I2S object to be able to use the methods from that library
 
-
+// -------------------- HELPERS --------------------
 void read_audio_block(int16_t *buffer, int n) {  //Method to read a audio block of size n
     int16_t left, right; //int_16 int value, left and right for two audio channel values
     for (int i = 0; i < n; i++) {  //we go through the whole array, n parameter is put in as the block size, when the method is called, 
@@ -86,7 +86,7 @@ static int microphone_audio_signal_get_data(size_t offset, size_t length, float 
     return 0; //return zero for succesfull execution of the function
 }
 
-
+// -------------------- WIFI / MQTT --------------------
 void setup_wifi() {  //Method to setup the wifi
     Serial.print("Connecting WiFi"); //Just print function to make thigns more clear
     WiFi.begin(ssid, password); //start the connection with presaid ssid, password
@@ -110,7 +110,7 @@ void connect_mqtt() {
     Serial.println(" connected!"); //print statement to make code more clean
 }
 
-
+// -------------------- SETUP --------------------
 void setup() { //setup method where pins and wifi setup
     Serial.begin(115200);//serial communication with 115200 bauds
     pinMode(LED_PIN, OUTPUT); //build in pin as output
@@ -127,7 +127,7 @@ void setup() { //setup method where pins and wifi setup
     Serial.println("System ready"); //Print statement to make cleaner, more readable code
 }
 
-
+// -------------------- LOOP --------------------
 void loop() { //The 
     mqtt.poll();  // keep MQTT alive
 
@@ -164,13 +164,14 @@ void loop() { //The
 
                         // Communication with hivemq cloud broker/server. 
                         mqtt.beginMessage(mqtt_topic);
-                        mqtt.print("{\"label\":\"");
+                        mqtt.print("label:");
+                        mqtt.print(" ");
                         mqtt.print(lbl);
-                        mqtt.print("\",\"confidence\":");
+                        mqtt.print(", confidence:");
+                        mqtt.print(" ");
                         mqtt.print(v, 3);
-                        mqtt.print("}");
                         mqtt.endMessage();
-                        //Prints in serial monitor in arduino ide
+
                         Serial.print("Published: ");
                         Serial.println(lbl);
 
